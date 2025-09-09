@@ -1,6 +1,7 @@
 import sys
 import pygame
 from settings import Settings
+from ship import Ship
 
 class AlienInvasion:
     """Overall class to manage all game assets and behaviour"""
@@ -11,22 +12,49 @@ class AlienInvasion:
         pygame.display.set_caption('Alien Invasion')
 
         self.clock = pygame.time.Clock()
+        self.ship = Ship(self)
 
     def run_game(self):
         """Main loop to run the game"""
         while True:
-            # watch for keyboard and mouse actions.
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    sys.exit()
-
-            # redraw the screen during each pass of the loop
-            self.screen.fill(self.settings.bg_color)
-
-            # Make the most recently drawn screen visible.
-            pygame.display.flip()
+            self._check_events()
+            self.ship.update()
+            self._update_screen()
             self.clock.tick(60)
 
+    def _check_events(self):
+        """Check for keyboard events"""
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                sys.exit()
+            elif event.type == pygame.KEYDOWN:
+                self._check_key_down_events(event)
+            elif event.type == pygame.KEYUP:
+                self._check_key_up_events(event)
+
+    def _check_key_down_events(self, event):
+        """Check for keyboard events"""
+        if event.key == pygame.K_q:
+            sys.exit()
+        if event.key == pygame.K_RIGHT:
+            self.ship.moving_right = True
+        if event.key == pygame.K_LEFT:
+            self.ship.moving_left = True
+
+    def _check_key_up_events(self, event):
+        """Check for keyboard events"""
+        if event.key == pygame.K_RIGHT:
+            self.ship.moving_right = False
+        if event.key == pygame.K_LEFT:
+            self.ship.moving_left = False
+
+    def _update_screen(self):
+        """Update the screen"""
+        # redraw the screen during each pass of the loop
+        self.screen.fill(self.settings.bg_color)
+        self.ship.blitme()
+
+        pygame.display.flip()
 
 if __name__ == '__main__':
     # Make a game instance, and run the geme.
